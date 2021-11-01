@@ -1,6 +1,7 @@
 const db = require('../db');
 const express = require('express');
 const router = new express.Router();
+const ExpressError = require('../expressError');
 
 
 router.get('/', async(req, res, next) => {
@@ -61,6 +62,8 @@ router.post('/', async (req, res, next) => {
 })
 
 router.put('/:id', async(req, res, next) => {
+    console.log('In Update');
+
     try{
         const id = req.params.id;
         let {amt, paid} = req.body;
@@ -69,6 +72,7 @@ router.put('/:id', async(req, res, next) => {
         const currStatus = await db.query(`SELECT paid FROM invoices WHERE id=$1`, [id]);
 
         if(currStatus.rows.length === 0){
+            console.log('Couldnt find invoice');
             throw new ExpressError(`Invoice Not Found`, 404);
         }
 
@@ -84,10 +88,12 @@ router.put('/:id', async(req, res, next) => {
 
         const result = await db.query(`UPDATE invoices SET amt=$1, paid=$2, paid_date=$3 WHERE id=$4 RETURNING id, comp_code, amt, paid, add_date, paid_date`, [amt, paid, paidDate, id]);
         if(result.rows.length === 0){
+            console.log('Invalid invoice');
             throw new ExpressError(`Invalid invoice`, 404);
         }
         return res.json({"invoice": result.rows[0]});
     }catch(e){
+        console.log('Error Found', e);
         next(e);
     }
 })

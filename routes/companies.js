@@ -15,24 +15,27 @@ router.get('/', async(req, res, next) => {
 
 router.get('/:code', async(req, res, next) => {
     try{
-        let code = req.params.code;
+        let ccode = req.params.code;
 
-        const c = await db.query(`SELECT code, name, description FROM companies WHERE code=$1`, [code]);
+        const c = await db.query(`SELECT c.code, c.name, c.description, i.industry FROM companies AS c LEFT JOIN comp_industry AS ci ON c.code = ci.comp_code LEFT JOIN industries AS i ON i.code = ci.ind_code WHERE c.code=$1`, [ccode]);
 
-        const i = await db.query(`SELECT id FROM invoices WHERE comp_code=$1`, [code]);
+        const i = await db.query(`SELECT id FROM invoices WHERE comp_code=$1`, [ccode]);
 
         if(c.rows.length === 0){
-            throw new ExpressError(`${code} code not Found`, 404);
+            console.log('Code not Found');
+            throw new ExpressError(`${ccode} code not Found`, 404);
         }
 
-        const company = c.rows[0];
-        const invoices = i.rows;
+        let {code, name, description} = c.rows[0];
+        // let invoices = i.rows;
 
-        company.invoices = invoices.map(inv => inv.id);
+        let industries = c.rows.map(r => r.industry);
+        invoices = i.rows.map(inv => inv.id);
 
-        return res.json({"company": company});
+        return res.json({"company": {code, name, description, industries, invoices}});
                                             
     }catch(e){
+        console.log('ErrorFound', e);
         return next(e);
     }
 })
