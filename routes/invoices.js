@@ -62,7 +62,7 @@ router.post('/', async (req, res, next) => {
 })
 
 router.put('/:id', async(req, res, next) => {
-    console.log('In Update');
+    // console.log('In Update');
 
     try{
         const id = req.params.id;

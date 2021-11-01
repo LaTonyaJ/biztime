@@ -7,20 +7,20 @@ const db = require('../db');
 let invoices;
 let companies;
 beforeEach(async() => {
-    const compResults = await db.query(`INSERT INTO companies (code, name, description) VALUES ('aero', 'Aeropostale', 'Teen Jeans') RETURNING code, name, description`);
+    const compResults = await db.query(`INSERT INTO companies (code, name, description) VALUES ('aeropostale', 'Aeropostale', 'Teen Jeans') RETURNING code, name, description`);
     
-    const invResults = await db.query(`INSERT INTO invoices (comp_code, amt) VALUES ('aero', 600) RETURNING id, comp_code, amt, paid, add_date, paid_date`);
+    const invResults = await db.query(`INSERT INTO invoices (comp_code, amt) VALUES ('aeropostale', 600) RETURNING id, comp_code, amt, paid, add_date, paid_date`);
 
 
     invoices = invResults.rows;
     companies = compResults.rows[0];
-    console.log(`Inserting data invoices:${invoices.length} companies:${companies.length}`);
+    // console.log(`Inserting data invoices:${invoices.length} companies:${companies.length}`);
 })
 
 afterEach(async() => {
     await db.query(`DELETE FROM invoices`);
     await db.query(`DELETE FROM companies`);
-    console.log("Deleting data");
+    // console.log("Deleting data");
 
 })
 
@@ -33,7 +33,7 @@ describe('Invoice Routes', () => {
     test('Get all invoices', async() => {
         const results = await request(app).get('/invoices');
         expect(results.status).toBe(200);
-        console.log(`Results:`, results.body);
+        // console.log(`Results:`, results.body);
         expect(results.body.invoices.length).toEqual(invoices.length);
     })
 
@@ -50,7 +50,7 @@ describe('Invoice Routes', () => {
 
     test('Add an invoice', async() => {
         const results = await request(app).post(`/invoices`).send({
-            comp_code: "aero",
+            comp_code: "aeropostale",
             amt: 200,        
         });
         expect(results.status).toBe(201);

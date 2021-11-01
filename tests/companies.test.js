@@ -6,8 +6,7 @@ const db = require('../db');
 
 let companies;
 beforeEach( async() => {
-    const results = await db.query(`INSERT INTO companies (code, name, description) VALUES
-    ('wm', 'Walmart', 'One Stop Shop') RETURNING code, name, description`);
+    const results = await db.query(`INSERT INTO companies (code, name, description) VALUES ('wally-world', 'Wally World', 'One Stop Shop') RETURNING code, name, description`);
 
     companies = results.rows[0];
 })
@@ -25,7 +24,7 @@ describe('Company Routes', () => {
     test('Get all companies', async() => {
         const results = await request(app).get('/companies');
         expect(results.status).toBe(200);
-        expect(results.body).toEqual({'companies': [companies]})
+        expect(results.body).toEqual({"companies": [companies]})
     })
 
     test('Get a company', async() => {
@@ -41,17 +40,16 @@ describe('Company Routes', () => {
 
     test('Add a company', async() => {
         const results = await request(app).post(`/companies`).send({
-            code: 'apple',
             name: 'Macintosh',
             description: 'Top Seller!'
         });
         expect(results.status).toBe(201);
-        expect(results.body).toEqual({'company': {code: 'apple', name: 'Macintosh', description: 'Top Seller!'}});
+        expect(results.body).toEqual({'company': {code: 'macintosh', name: 'Macintosh', description: 'Top Seller!'}});
     })
 
     test('Add Invalid company', async() => {
         const results = await request(app).post(`/companies`).send({
-            code: 'apple',
+            code: 'macintosh',
             description: 'Top Seller!'
         });
         expect(results.status).toBe(404);
@@ -59,12 +57,11 @@ describe('Company Routes', () => {
 
     test('Update a company', async() => {
         const results = await request(app).put(`/companies/${companies.code}`).send({
-            code: 'wm',
-            name: 'Wally World',
+            name: 'Wally-World',
             description: 'Founded 1950'
         });
         expect(results.status).toBe(200);
-        expect(results.body).toEqual({'company': {code: 'wm', name: 'Wally World', description: 'Founded 1950'}});
+        expect(results.body).toEqual({'company': {code: 'wally-world', name: 'Wally-World', description: 'Founded 1950'}});
     })
 
     test('Delete company', async() => {
